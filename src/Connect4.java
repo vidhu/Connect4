@@ -1,15 +1,17 @@
 import java.awt.*;
+import java.net.URL;
 import java.util.EventObject;
 import javax.swing.*;
 import java.util.Random;
 
 public class Connect4 {
 
-    static int[][] board = new int[8][8];
+    static int[][] board = new int[8][8]; //[row][column]
 
     Player p = new Player();
     
     public static void main(String[] args) {
+        board[7][0] = 10;
         drawGui();
     }
     
@@ -94,6 +96,18 @@ public class Connect4 {
                 //get the coordinates
                 int row = Integer.parseInt(name.split("[|]+")[1]);
                 int column = Integer.parseInt(name.split("[|]+")[2]);
+                
+                ImageIcon nextSquareIcon = (ImageIcon)squares[row][column].getIcon();
+                
+                while(row<7){        
+                    nextSquareIcon = (ImageIcon)squares[row+1][column].getIcon();
+                    row++;
+                    if(nextSquareIcon != blankButton){
+                        row--;
+                        break;
+                    }
+                }
+                    
                 
                 squares[row][column].setIcon(blueButton);
             }
