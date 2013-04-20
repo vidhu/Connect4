@@ -1,14 +1,22 @@
 import java.awt.*;
+import java.util.EventObject;
 import javax.swing.*;
+import java.util.Random;
 
 public class Connect4 {
 
-    int[][] board = new int[8][8];
+    static int[][] board = new int[8][8];
 
     Player p = new Player();
     
     public static void main(String[] args) {
-        ImageIcon icon = new ImageIcon("src/blank.png");
+        drawGui();
+    }
+    
+    public static void drawGui(){
+        ImageIcon blankButton = new ImageIcon("src/blank.png");
+        ImageIcon blueButton = new ImageIcon("src/blue.png");
+        ImageIcon redButton = new ImageIcon("src/red.png");
         
         //Create Gui Frame
         JFrame frame = new JFrame("Hash Function Comparison");
@@ -16,51 +24,79 @@ public class Connect4 {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setBackground(new Color(255, 240, 180));
         
-        JButton[] squares = new JButton[64];
+        JButton[][] squares = new JButton[8][8];
         
         for(int i=0; i<squares.length; i++){
-            squares[i] = new JButton(icon);
-            JBox.setSize(squares[i], 50, 50);
-            squares[i].setIconTextGap(0);
+            for(int j=0; j<squares.length; j++){
+                if(board[i][j] == 1){
+                    squares[i][j] = new JButton(redButton);
+                }else if(board[i][j] == 10){
+                    squares[i][j] = new JButton(blueButton);
+                }else{
+                    squares[i][j] = new JButton(blankButton);
+                }
+                JBox.setSize(squares[i][j], 50, 50);
+                squares[i][j].setIconTextGap(0);
+            }  
         }
        
         
         JBox body = JBox.vbox(
-                    JBox.hbox(
-                        squares[0], squares[1], squares[2], squares[3],
-                        squares[4], squares[5], squares[6], squares[7]
-                    ),
-                    JBox.hbox(
-                        squares[8], squares[9], squares[10], squares[11],
-                        squares[12], squares[13], squares[14], squares[15]
-                    ),
-                    JBox.hbox(
-                        squares[16], squares[17], squares[18], squares[19],
-                        squares[20], squares[21], squares[22], squares[23]
-                    ),
-                    JBox.hbox(
-                        squares[24], squares[25], squares[26], squares[27],
-                        squares[28], squares[29], squares[30], squares[31]
-                    ),
-                    JBox.hbox(
-                        squares[32], squares[33], squares[34], squares[35],
-                        squares[36], squares[37], squares[38], squares[39]
-                    ),
-                    JBox.hbox(
-                        squares[40], squares[41], squares[42], squares[43],
-                        squares[44], squares[45], squares[46], squares[47]
-                    ),
-                    JBox.hbox(
-                        squares[48], squares[49], squares[50], squares[51],
-                        squares[52], squares[53], squares[54], squares[55]
-                    ),
-                    JBox.hbox(
-                        squares[56], squares[57], squares[58], squares[59],
-                        squares[60], squares[61], squares[62], squares[63]
-                    )
-                );
+            JBox.hbox(
+                squares[0][0], squares[0][1], squares[0][2], squares[0][3],
+                squares[0][4], squares[0][5], squares[0][6], squares[0][7]
+            ),
+            JBox.hbox(
+                squares[1][0], squares[1][1], squares[1][2], squares[1][3],
+                squares[1][4], squares[1][5], squares[1][6], squares[1][7]
+            ),
+            JBox.hbox(
+                squares[2][0], squares[2][1], squares[2][2], squares[2][3],
+                squares[2][4], squares[2][5], squares[2][6], squares[2][7]
+            ),
+            JBox.hbox(
+                squares[3][0], squares[3][1], squares[3][2], squares[3][3],
+                squares[3][4], squares[3][5], squares[3][6], squares[3][7]
+            ),
+            JBox.hbox(
+                squares[4][0], squares[4][1], squares[4][2], squares[4][3],
+                squares[4][4], squares[4][5], squares[4][6], squares[4][7]
+            ),
+            JBox.hbox(
+                squares[5][0], squares[5][1], squares[5][2], squares[5][3],
+                squares[5][4], squares[5][5], squares[5][6], squares[5][7]
+            ),
+            JBox.hbox(
+                squares[6][0], squares[6][1], squares[6][2], squares[6][3],
+                squares[6][4], squares[6][5], squares[6][6], squares[6][7]
+            ),
+            JBox.hbox(
+                squares[7][0], squares[7][1], squares[7][2], squares[7][3],
+                squares[7][4], squares[7][5], squares[7][6], squares[7][7]
+            )
+        );
         
         frame.add(body);
         frame.setVisible(true);
+        
+        //Event listeners
+        JEventQueue events = new JEventQueue();
+        for(int i=0; i<squares.length; i++){
+            for(int j=0; j<squares.length; j++){
+                events.listenTo(squares[i][j], "box|"+i+"|"+j);
+            }  
+        }
+        
+        while(true){
+            EventObject event = events.waitEvent();
+            String name = events.getName(event);
+            if(name.subSequence(0, 3).equals("box")) {
+                //get the coordinates
+                int row = Integer.parseInt(name.split("[|]+")[1]);
+                int column = Integer.parseInt(name.split("[|]+")[2]);
+                
+                squares[row][column].setIcon(blueButton);
+            }
+        }
     }
 }
