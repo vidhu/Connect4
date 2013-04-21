@@ -109,7 +109,7 @@ public class Connect4 {
                 }
                     
                 
-                squares[row][column].setIcon(blueButton);
+                squares[row][column].setIcon(redButton);
             }
         }
     }
