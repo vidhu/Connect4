@@ -97,19 +97,20 @@ public class Connect4 {
                 int row = Integer.parseInt(name.split("[|]+")[1]);
                 int column = Integer.parseInt(name.split("[|]+")[2]);
                 
+                
                 ImageIcon nextSquareIcon = (ImageIcon)squares[row][column].getIcon();
                 
-                while(row<7){        
-                    nextSquareIcon = (ImageIcon)squares[row+1][column].getIcon();
-                    row++;
-                    if(nextSquareIcon != blankButton){
-                        row--;
-                        break;
+                if(nextSquareIcon == blankButton){
+                    while(row<7){        
+                        nextSquareIcon = (ImageIcon)squares[row+1][column].getIcon();
+                        row++;
+                        if(nextSquareIcon != blankButton){
+                            row--;
+                            break;
+                        }
                     }
+                    squares[row][column].setIcon(redButton);
                 }
-                    
-                
-                squares[row][column].setIcon(redButton);
             }
         }
     }
