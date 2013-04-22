@@ -12,10 +12,45 @@ public class Connect4 {
     
     public static void main(String[] args) {
         board[7][0] = 10;
+        board[6][1] = 10;
+        board[5][2] = 10;
+        board[4][3] = 10;
         drawGui();
     }
     
+    public static boolean isWin(){        
+        //Check hoizontaly (only blue)
+        for(int i=0; i<8;i++){
+            for(int j=0, sum=0;j<7;j++){
+                if(board[i][j] == board[i][j+1]){
+                    sum += board[i][j];
+                }
+                
+                if(sum == 30){
+                    return true;
+                }
+            }
+        }
+        
+        //Check verticaly (only blue)
+        for(int i=0; i<8;i++){
+            for(int j=0, sum=0; j<7; j++){
+                if(board[j][i] == board[j+1][i]){
+                    sum += board[j][i];
+                }
+                if(sum == 30){
+                    return true;
+                }
+            }
+        }
+        
+        
+        return false;
+    }
+    
     public static void drawGui(){
+        
+        
         ImageIcon blankButton = new ImageIcon("src/blank.png");
         ImageIcon blueButton = new ImageIcon("src/blue.png");
         ImageIcon redButton = new ImageIcon("src/red.png");
@@ -80,6 +115,15 @@ public class Connect4 {
         
         frame.add(body);
         frame.setVisible(true);
+        
+        
+         
+        //Check for a win before drawing gui
+        if(isWin()){
+            System.out.println("Win detected!");
+            //return;
+        }       
+        
         
         //Event listeners
         JEventQueue events = new JEventQueue();
