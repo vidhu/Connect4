@@ -8,33 +8,43 @@ public class Connect4 {
 
     static int[][] board = new int[8][8]; //[row][column]
 
-    Player p = new Player();
+    Player p = new Player("red");
     
     public static void main(String[] args) {
         drawGui();
     }
     
+    //returns true is there is a 4 in a row at the latest point where the color was added
     public static boolean isWin(int row, int column){
-        return isWinHelper(row, column, 1, 0) ||
-                isWinHelper(row, column, -1, 0) ||
-                isWinHelper(row, column, 0, 1) ||
-                isWinHelper(row, column, 0, -1) ||
-                isWinHelper(row, column, -1, -1) ||
-                isWinHelper(row, column, 1, 1) ||
-                isWinHelper(row, column, -1, 1)||
-                isWinHelper(row, column, 1, -1);
+        return isWinHelper(row, column, 1, -1) || //Check diagonal up 
+                isWinHelper(row, column, 1, 1) || //Check diagonal down
+                isWinHelper(row, column, 1, 0) || //Check horizontal
+                isWinHelper(row, column, 0, 1);   //Chech vertical
 
     }
-    
     public static boolean isWinHelper(int row, int column, int stepX, int stepY){        
         int playerSum = 0;
         
         for(int i=1;i<4;i++){
             if((row + (stepY*i)) < 0 || (row + (stepY*i)) > 7){
-                return false;
+                break;
             }
             if((column + (stepX*i)) < 0 || (column + (stepX*i)) > 7){
-                return false;
+                break;
+            }
+            int a = row + (stepY*i);
+            int b = column + (stepX*i);
+            playerSum += board[row + (stepY*i)][column + (stepX*i)];
+        }
+        
+        stepX *= -1;
+        stepY *= -1;
+        for(int i=1;i<4;i++){
+            if((row + (stepY*i)) < 0 || (row + (stepY*i)) > 7){
+                break;
+            }
+            if((column + (stepX*i)) < 0 || (column + (stepX*i)) > 7){
+                break;
             }
             int a = row + (stepY*i);
             int b = column + (stepX*i);
@@ -43,11 +53,15 @@ public class Connect4 {
         
         if(playerSum == 3){
             return true;
+        }else if(playerSum == 30){
+            return true;
         }
         
         return false;
     }
     
+    //Draws the windows and the board when called. Call this method to view any
+    //updates made the the board array
     public static void drawGui(){
         
         
