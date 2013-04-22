@@ -11,39 +11,39 @@ public class Connect4 {
     Player p = new Player();
     
     public static void main(String[] args) {
-        board[7][0] = 10;
-        board[6][1] = 10;
-        board[5][2] = 10;
-        board[4][3] = 10;
         drawGui();
     }
     
-    public static boolean isWin(){        
-        //Check hoizontaly (only blue)
-        for(int i=0; i<8;i++){
-            for(int j=0, sum=0;j<7;j++){
-                if(board[i][j] == board[i][j+1]){
-                    sum += board[i][j];
-                }
-                
-                if(sum == 30){
-                    return true;
-                }
+    public static boolean isWin(int row, int column){
+        return isWinHelper(row, column, 1, 0) ||
+                isWinHelper(row, column, -1, 0) ||
+                isWinHelper(row, column, 0, 1) ||
+                isWinHelper(row, column, 0, -1) ||
+                isWinHelper(row, column, -1, -1) ||
+                isWinHelper(row, column, 1, 1) ||
+                isWinHelper(row, column, -1, 1)||
+                isWinHelper(row, column, 1, -1);
+
+    }
+    
+    public static boolean isWinHelper(int row, int column, int stepX, int stepY){        
+        int playerSum = 0;
+        
+        for(int i=1;i<4;i++){
+            if((row + (stepY*i)) < 0 || (row + (stepY*i)) > 7){
+                return false;
             }
+            if((column + (stepX*i)) < 0 || (column + (stepX*i)) > 7){
+                return false;
+            }
+            int a = row + (stepY*i);
+            int b = column + (stepX*i);
+            playerSum += board[row + (stepY*i)][column + (stepX*i)];
         }
         
-        //Check verticaly (only blue)
-        for(int i=0; i<8;i++){
-            for(int j=0, sum=0; j<7; j++){
-                if(board[j][i] == board[j+1][i]){
-                    sum += board[j][i];
-                }
-                if(sum == 30){
-                    return true;
-                }
-            }
+        if(playerSum == 3){
+            return true;
         }
-        
         
         return false;
     }
@@ -115,15 +115,7 @@ public class Connect4 {
         
         frame.add(body);
         frame.setVisible(true);
-        
-        
-         
-        //Check for a win before drawing gui
-        if(isWin()){
-            System.out.println("Win detected!");
-            //return;
-        }       
-        
+       
         
         //Event listeners
         JEventQueue events = new JEventQueue();
@@ -154,6 +146,13 @@ public class Connect4 {
                         }
                     }
                     squares[row][column].setIcon(redButton);
+                    //Change board
+                    board[row][column] = 1;
+                    //Check for a win before drawing gui
+                    if(isWin(row, column)){
+                        System.out.println("Win detected!");
+                    }       
+        
                 }
             }
         }
