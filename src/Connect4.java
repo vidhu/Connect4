@@ -5,9 +5,7 @@ import javax.swing.*;
 import java.util.Random;
 
 public class Connect4 {
-
     static int[][] board = new int[8][8]; //[row][column]
-
     Player p = new Player("red");
     
     public static void main(String[] args) {
