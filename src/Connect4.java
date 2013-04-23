@@ -5,11 +5,27 @@ import javax.swing.*;
 import java.util.Random;
 
 public class Connect4 {
+    //Boord used in this game
     static int[][] board = new int[8][8]; //[row][column]
-    Player p = new Player("red");
     
-    public static void main(String[] args) {
+    //The grids in the board
+    static JButton[][] squares = new JButton[8][8];
+    
+    //GridColors
+    static ImageIcon blankButton = new ImageIcon("src/blank.png");
+    static ImageIcon blueButton = new ImageIcon("src/blue.png");
+    static ImageIcon redButton = new ImageIcon("src/red.png");
+    
+    //A player i.e a bot
+    Player p = new Player("blue");
+    
+    public static void main(String[] args) throws InterruptedException {
         drawGui();
+        for(int i=0;i<8;i++){
+            Thread.sleep(1000);
+            MakeMove(10, i);
+            updateGui();
+        }
     }
     
     //returns true is there is a 4 in a row at the latest point where the color was added
@@ -58,11 +74,8 @@ public class Connect4 {
         return false;
     }
     
-    //Draws the windows and the board when called. Call this method to view any
-    //updates made the the board array
+    //Draws the windows and the board when called. Call only once at start of program!
     public static void drawGui(){
-        
-        
         ImageIcon blankButton = new ImageIcon("src/blank.png");
         ImageIcon blueButton = new ImageIcon("src/blue.png");
         ImageIcon redButton = new ImageIcon("src/red.png");
@@ -73,8 +86,7 @@ public class Connect4 {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setBackground(new Color(255, 240, 180));
         
-        JButton[][] squares = new JButton[8][8];
-        
+           
         for(int i=0; i<squares.length; i++){
             for(int j=0; j<squares.length; j++){
                 if(board[i][j] == 1){
@@ -158,15 +170,53 @@ public class Connect4 {
                         }
                     }
                     squares[row][column].setIcon(redButton);
-                    //Change board
-                    board[row][column] = 1;
-                    //Check for a win before drawing gui
-                    if(isWin(row, column)){
-                        System.out.println("Win detected!");
-                    }       
-        
+                    
+                    //Change the board
+                    MakeMove(1, column, row);
+                    break;
                 }
             }
         }
+    }
+    
+    //call this whenever you update the board to redraw the grids
+    public static void updateGui(){
+        for(int i=0; i<squares.length; i++){
+            for(int j=0; j<squares.length; j++){
+                if(board[i][j] == 1){
+                    squares[i][j].setIcon(redButton);
+                }else if(board[i][j] == 10){
+                    squares[i][j].setIcon(blueButton);
+                }else{
+                    squares[i][j].setIcon(blankButton);
+                }
+                JBox.setSize(squares[i][j], 50, 50);
+                squares[i][j].setIconTextGap(0);
+            }  
+        }
+    }
+    
+    public static void MakeMove(int Player, int column){
+        int row =0;
+        
+        //Sets the next available row
+        while(row<7){
+            row++;
+            if (board[row][column] != 0) {
+                row--;
+                break;
+            }
+        }
+        
+        MakeMove(Player, column, row);
+    }
+    
+    public static void MakeMove(int player, int column, int row){
+        board[row][column] = player;
+        
+        //Detect a win
+        if (isWin(row, column)) {
+            System.out.println("Win detected!");
+        }  
     }
 }
