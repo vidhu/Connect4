@@ -22,7 +22,7 @@ public class Connect4 {
     public static void main(String[] args) throws InterruptedException {
         drawGui();
         while(true){
-            makeMove(10, 3);  //Bot makes move
+            makeMove(10, 3);//Bot makes move "makeMove(playerNumber, column)"
             userTurn();       //user makes move
         }
     }
@@ -32,11 +32,13 @@ public class Connect4 {
         return isWinHelper(row, column, 1, -1) || //Check diagonal up 
                 isWinHelper(row, column, 1, 1) || //Check diagonal down
                 isWinHelper(row, column, 1, 0) || //Check horizontal
-                isWinHelper(row, column, 0, 1);   //Chech vertical
+                isWinHelper(row, column, 0, 1);   //Check vertical
+
 
     }
     public static boolean isWinHelper(int row, int column, int stepX, int stepY){        
         int playerSum = 0;
+        int player = board[row][column];
         
         for(int i=1;i<4;i++){
             if((row + (stepY*i)) < 0 || (row + (stepY*i)) > 7){
@@ -45,9 +47,16 @@ public class Connect4 {
             if((column + (stepX*i)) < 0 || (column + (stepX*i)) > 7){
                 break;
             }
+            //debug variable
             int a = row + (stepY*i);
             int b = column + (stepX*i);
-            playerSum += board[row + (stepY*i)][column + (stepX*i)];
+            
+            if(board[row + (stepY*i)][column + (stepX*i)] == player){
+                playerSum += board[row + (stepY*i)][column + (stepX*i)];
+            }else{
+                break;
+            }
+            
         }
         
         stepX *= -1;
@@ -59,14 +68,20 @@ public class Connect4 {
             if((column + (stepX*i)) < 0 || (column + (stepX*i)) > 7){
                 break;
             }
+            //debug variable
             int a = row + (stepY*i);
             int b = column + (stepX*i);
-            playerSum += board[row + (stepY*i)][column + (stepX*i)];
+            
+            if(board[row + (stepY*i)][column + (stepX*i)] == player){
+                playerSum += board[row + (stepY*i)][column + (stepX*i)];
+            }else{
+                break;
+            }           
         }
         
-        if(playerSum == 3){
+        if(playerSum%10 >= 3){
             return true;
-        }else if(playerSum == 30){
+        }else if(playerSum/10 >= 3){
             return true;
         }
         
@@ -171,29 +186,13 @@ public class Connect4 {
         while(true){
             EventObject event = events.waitEvent();
             String name = events.getName(event);
-            if(name.subSequence(0, 3).equals("box")) {
+            if (name.subSequence(0, 3).equals("box")) {
                 //get the coordinates
-                int row = Integer.parseInt(name.split("[|]+")[1]);
                 int column = Integer.parseInt(name.split("[|]+")[2]);
-                
-                
-                ImageIcon nextSquareIcon = (ImageIcon)squares[row][column].getIcon();
-                
-                if(nextSquareIcon == blankButton){
-                    while(row<7){        
-                        nextSquareIcon = (ImageIcon)squares[row+1][column].getIcon();
-                        row++;
-                        if(nextSquareIcon != blankButton){
-                            row--;
-                            break;
-                        }
-                    }
-                    squares[row][column].setIcon(redButton);
-                    
-                    //Change the board
-                    makeMove(1, column, row);
-                    break;
-                }
+
+                //Change the board
+                makeMove(10, column);
+                break;
             }
         }
     }
