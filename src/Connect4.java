@@ -21,10 +21,9 @@ public class Connect4 {
     
     public static void main(String[] args) throws InterruptedException {
         drawGui();
-        for(int i=0;i<8;i++){
-            Thread.sleep(1000);
-            MakeMove(10, i);
-            updateGui();
+        while(true){
+            makeMove(10, 3);  //Bot makes move
+            userTurn();       //user makes move
         }
     }
     
@@ -139,8 +138,28 @@ public class Connect4 {
         
         frame.add(body);
         frame.setVisible(true);
-       
         
+    }
+    
+    //call this whenever you update the board to redraw the grids
+    public static void updateGui(){
+        for(int i=0; i<squares.length; i++){
+            for(int j=0; j<squares.length; j++){
+                if(board[i][j] == 1){
+                    squares[i][j].setIcon(redButton);
+                }else if(board[i][j] == 10){
+                    squares[i][j].setIcon(blueButton);
+                }else{
+                    squares[i][j].setIcon(blankButton);
+                }
+                JBox.setSize(squares[i][j], 50, 50);
+                squares[i][j].setIconTextGap(0);
+            }  
+        }
+    }
+    
+    //wait for user input
+    public static void userTurn(){
         //Event listeners
         JEventQueue events = new JEventQueue();
         for(int i=0; i<squares.length; i++){
@@ -172,31 +191,14 @@ public class Connect4 {
                     squares[row][column].setIcon(redButton);
                     
                     //Change the board
-                    MakeMove(1, column, row);
+                    makeMove(1, column, row);
                     break;
                 }
             }
         }
     }
     
-    //call this whenever you update the board to redraw the grids
-    public static void updateGui(){
-        for(int i=0; i<squares.length; i++){
-            for(int j=0; j<squares.length; j++){
-                if(board[i][j] == 1){
-                    squares[i][j].setIcon(redButton);
-                }else if(board[i][j] == 10){
-                    squares[i][j].setIcon(blueButton);
-                }else{
-                    squares[i][j].setIcon(blankButton);
-                }
-                JBox.setSize(squares[i][j], 50, 50);
-                squares[i][j].setIconTextGap(0);
-            }  
-        }
-    }
-    
-    public static void MakeMove(int Player, int column){
+    public static void makeMove(int Player, int column){
         int row =0;
         
         //Sets the next available row
@@ -208,15 +210,18 @@ public class Connect4 {
             }
         }
         
-        MakeMove(Player, column, row);
+        makeMove(Player, column, row);
     }
     
-    public static void MakeMove(int player, int column, int row){
+    public static void makeMove(int player, int column, int row){
         board[row][column] = player;
         
         //Detect a win
         if (isWin(row, column)) {
             System.out.println("Win detected!");
         }  
+        
+        //Updates the gui to relfect changes in the board
+        updateGui();
     }
 }
