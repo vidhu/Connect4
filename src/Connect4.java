@@ -7,23 +7,26 @@ public class Connect4 {
     //Boord used in this game
     //The grids in the board
     static JButton[][] squares = new JButton[8][8];
+    static JLabel winnerlbl = new JLabel();
     static int[][] board = new int[8][8];            //game board [row][column]
     
     //GridColors
     static ImageIcon blankButton = new ImageIcon("blank.png");
     static ImageIcon blueButton = new ImageIcon("blue.png");
     static ImageIcon redButton = new ImageIcon("red.png");
+    static ImageIcon blueButtonLight = new ImageIcon("bluel.png");
+    static ImageIcon redButtonLight = new ImageIcon("redl.png");
     
-    
-    
+    //marks if the game is in progress or a player has won
+    static boolean isWon = false;
+    static int[][] winningCells = new int[4][2];
     
     public static void main(String[] args) throws InterruptedException {
         Player p = new Player();                   // bot
         drawGui();
         
-        boolean firstMove = false;
-        
-        while(true){
+        boolean firstMove = false;        
+        while(!isWon){
             
             if(firstMove) {                                  //DELTE AFTER TESTING LINE IS ONLY USED TO SIMULATE COMPUTER GOING FIRST
                 makeMove(10, 4);
@@ -33,6 +36,8 @@ public class Connect4 {
             userTurn();                                  // user makes move
             makeMove(10, p.move(board, 10));                 // bot makes move (playerNumber, column)
         }
+        
+        
     }
     
     //returns true is there is a 4 in a row at the latest point where the color was added
@@ -48,6 +53,8 @@ public class Connect4 {
         int playerSum = 0;
         int player = board[row][column];
         
+        addWinningCell(row, column);
+        
         for(int i=1;i<4;i++){
             if((row + (stepY*i)) < 0 || (row + (stepY*i)) > 7){
                 break;
@@ -60,11 +67,11 @@ public class Connect4 {
             int b = column + (stepX*i);
             
             if(board[row + (stepY*i)][column + (stepX*i)] == player){
+                addWinningCell(row + (stepY*i), column + (stepX*i));
                 playerSum += board[row + (stepY*i)][column + (stepX*i)];
             }else{
                 break;
-            }
-            
+            } 
         }
         
         stepX *= -1;
@@ -81,6 +88,7 @@ public class Connect4 {
             int b = column + (stepX*i);
             
             if(board[row + (stepY*i)][column + (stepX*i)] == player){
+                addWinningCell(row + (stepY*i), column + (stepX*i));
                 playerSum += board[row + (stepY*i)][column + (stepX*i)];
             }else{
                 break;
@@ -91,6 +99,8 @@ public class Connect4 {
             return true;
         }else if(playerSum/10 >= 3){
             return true;
+        }else{
+            resetWinningCell();
         }
         
         return false;
@@ -162,6 +172,9 @@ public class Connect4 {
                                         squares[7][0], squares[7][1], squares[7][2], squares[7][3],
                                         squares[7][4], squares[7][5], squares[7][6], squares[7][7]
                                        ),
+                              JBox.hbox(
+                                        winnerlbl
+                                       ),
                               JBox.vglue()
                              );
         body.setFont(new Font("Connect 4", Font.BOLD, 48));
@@ -228,10 +241,61 @@ public class Connect4 {
         board[row][column] = player;        
         //Detect a win
         if (isWin(row, column)) {
+            //Sets the win message
+            if(player == 1){
+                highlightWinningCells(1);
+                winnerlbl.setText("You have won!"); 
+            }else if(player == 10){
+                highlightWinningCells(10);
+                winnerlbl.setText("Bot has won!");
+            }
+            
+            //Disables all buttons
+            for(int i=0; i<8; i++){
+                for(int j=0; j<8; j++){
+                    squares[i][j].setEnabled(true);
+                }
+            }
+            
+            //Sets isWon flag to true to halt game
+            isWon = true;
+            
+            //Debuging thing
             System.out.println("Win detected!");
+            return;
         }  
         
         //Updates the gui to relfect changes in the board
         updateGui();
+    }
+    
+    public static void addWinningCell(int row, int column){
+        for(int i=0;i<4;i++){
+            if(winningCells[i][0] == 0){
+                winningCells[i][0] = row;
+                winningCells[i][1] = column;
+                break;
+            }
+        }
+    }
+    
+    public static void resetWinningCell(){
+        for(int i=0; i<4; i++){
+            for(int j=0; j<2; j++){
+                winningCells[i][j] = 0;
+            }
+        }
+    }
+    
+    public static void highlightWinningCells(int player){
+        if(player == 1){
+            for(int i=0; i<4; i++){
+                squares[winningCells[i][0]][winningCells[i][1]].setIcon(redButtonLight);
+            }
+        }else if(player == 10){
+            for(int i=0; i<4; i++){
+                squares[winningCells[i][0]][winningCells[i][1]].setIcon(blueButtonLight);
+            }
+        }
     }
 }
