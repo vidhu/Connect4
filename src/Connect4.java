@@ -1,25 +1,29 @@
 import java.awt.*;
 import java.util.EventObject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.*;
 
 
 public class Connect4 {
     //Boord used in this game
     //The grids in the board
-    static JButton[][] squares = new JButton[8][8];
-    static JLabel winnerlbl = new JLabel();
-    static int[][] board = new int[8][8];            //game board [row][column]
+    private static JButton[][] squares = new JButton[8][8];
+    private static JLabel winnerlbl = new JLabel();
+    private static JLabel turnlbl = new JLabel();
+    private static int[][] board = new int[8][8];            //game board [row][column]
     
     //GridColors
-    static ImageIcon blankButton = new ImageIcon("blank.png");
-    static ImageIcon blueButton = new ImageIcon("blue.png");
-    static ImageIcon redButton = new ImageIcon("red.png");
-    static ImageIcon blueButtonLight = new ImageIcon("bluel.png");
-    static ImageIcon redButtonLight = new ImageIcon("redl.png");
+    private static ImageIcon blankButton = new ImageIcon("blank.png");
+    private static ImageIcon blueButton = new ImageIcon("blue.png");
+    private static ImageIcon redButton = new ImageIcon("red.png");
+    private static ImageIcon blueButtonLight = new ImageIcon("bluel.png");
+    private static ImageIcon redButtonLight = new ImageIcon("redl.png");
     
     //marks if the game is in progress or a player has won
-    static boolean isWon = false;
-    static int[][] winningCells = new int[4][2];
+    private static boolean isWon = false;
+    private static int[][] winningCells = new int[4][2];
+    private static final int AMIMATION_TIME = 200; //block drop animation in milliseconds
     
     public static void main(String[] args) throws InterruptedException {
         Player p = new Player();                   // bot
@@ -33,22 +37,21 @@ public class Connect4 {
                 firstMove = false;
             }                                     
             
-            userTurn();                                  // user makes move
-            makeMove(10, p.move(board, 10));                 // bot makes move (playerNumber, column)
+                userTurn();                                  // user makes move
+            if(!isWon){
+                makeMove(10, p.move(board, 10));                 // bot makes move (playerNumber, column)
+            }
         }
-        
-        
     }
     
     //returns true is there is a 4 in a row at the latest point where the color was added
     public static boolean isWin(int row, int column){
         return isWinHelper(row, column, 1, -1) || //Check diagonal up 
-            isWinHelper(row, column, 1, 1) || //Check diagonal down
-            isWinHelper(row, column, 1, 0) || //Check horizontal
-            isWinHelper(row, column, 0, 1);   //Check vertical
-        
-        
+            isWinHelper(row, column, 1, 1) ||     //Check diagonal down
+            isWinHelper(row, column, 1, 0) ||     //Check horizontal
+            isWinHelper(row, column, 0, 1);       //Check vertical
     }
+
     public static boolean isWinHelper(int row, int column, int stepX, int stepY){        
         int playerSum = 0;
         int player = board[row][column];
@@ -114,7 +117,7 @@ public class Connect4 {
         
         //Create Gui Frame
         JFrame frame = new JFrame("Connect 4");
-        frame.setSize(537, 700);
+        frame.setSize(537, 675);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setBackground(new Color(255, 240, 180));
         
@@ -172,9 +175,8 @@ public class Connect4 {
                                         squares[7][0], squares[7][1], squares[7][2], squares[7][3],
                                         squares[7][4], squares[7][5], squares[7][6], squares[7][7]
                                        ),
-                              JBox.hbox(
-                                        winnerlbl
-                                       ),
+                              JBox.hbox(winnerlbl),
+                              JBox.hbox(turnlbl),
                               JBox.vglue()
                              );
         body.setFont(new Font("Connect 4", Font.BOLD, 48));
@@ -203,6 +205,7 @@ public class Connect4 {
     
     //wait for user input
     public static void userTurn(){
+        turnlbl.setText("User Turn...");
         //Event listeners
         JEventQueue events = new JEventQueue();
         for(int i=0; i<squares.length; i++){
@@ -223,18 +226,32 @@ public class Connect4 {
                 break;
             }
         }
+        turnlbl.setText("Bot Turn...");
     }
     
     public static void makeMove(int Player, int column){                    // Vaeman
-        boolean found = false;
-        int row = board.length-1; 
-        while(!found && row>=0) {
-            if(board[row][column] == 0) {  
-                makeMove(Player, column, row);
-                found = true;
+        int row =0;
+        
+        //Sets the next available row
+        while(row<7){
+            if(Player == 1){
+                squares[row][column].setIcon(redButton);
+            }else{
+                squares[row][column].setIcon(blueButton);
             }
-            row--;
+            try {
+                Thread.sleep(AMIMATION_TIME);
+            } catch (InterruptedException ex) {
+                
+            }
+            row++;
+            squares[row-1][column].setIcon(blankButton);
+            if (board[row][column] != 0) {
+                row--;
+                break;
+            }
         }
+        makeMove(Player, column, row);
     }
     
     public static void makeMove(int player, int column, int row){
@@ -242,6 +259,7 @@ public class Connect4 {
         //Detect a win
         if (isWin(row, column)) {
             //Sets the win message
+            turnlbl.setText("");
             if(player == 1){
                 highlightWinningCells(1);
                 winnerlbl.setText("You have won!"); 
