@@ -16,6 +16,9 @@ public class Connect4 {
     private static JLabel scoreTitle = new JLabel("Game wins");
     private static JLabel botWins = new JLabel("Bot: ");
     private static JLabel playerWins = new JLabel("Player: ");
+    private static JLabel difficultylbl = new JLabel("Difficulty");
+    private static String[] difficultyTypes = {"Easy", "Medium", "Hard"};
+    private static JComboBox difficultycomboBox = new JComboBox<String>(difficultyTypes);
         
     //GridColors
     private static ImageIcon blankButton = new ImageIcon("blank.png");
@@ -29,8 +32,10 @@ public class Connect4 {
     private static int[][] winningCells = new int[4][2];
     private static final int AMIMATION_TIME = 100; //block drop animation in milliseconds
     
+    //Player (Bot) class
+    private static Player p = new Player(); 
+    
     public static void main(String[] args) throws InterruptedException {
-        Player p = new Player();                   // bot
         drawGui();
         
         boolean firstMove = false;        
@@ -128,6 +133,7 @@ public class Connect4 {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setBackground(new Color(255, 240, 180));
         
+        difficultycomboBox.setSelectedIndex(2);
         
         for(int i=0; i<squares.length; i++){
             for(int j=0; j<squares.length; j++){
@@ -188,6 +194,12 @@ public class Connect4 {
                                         JBox.vbox(
                                                     JBox.vglue(),
                                                     resetButton,
+                                                    JBox.vglue()
+                                                ),
+                                        JBox.hspace(20),
+                                        JBox.vbox(
+                                                    JBox.vglue(),
+                                                    difficultycomboBox,
                                                     JBox.vglue()
                                                 ),
                                         JBox.hspace(80),
@@ -254,11 +266,13 @@ public class Connect4 {
     
     //wait for user input
     public static void userTurn(){
+        //Event handlers
         if(!isWon)
             turnlbl.setText("User Turn...");
         //Event listeners
         JEventQueue events = new JEventQueue();
         events.listenTo(resetButton,"resetButton");
+        events.listenTo(difficultycomboBox, "setDifficulty");
         for(int i=0; i<squares.length; i++){
             for(int j=0; j<squares.length; j++){
                 events.listenTo(squares[i][j], "box|"+i+"|"+j);
@@ -279,9 +293,20 @@ public class Connect4 {
                     break;
                 }
                 
-            }
-            if(name.equals("resetButton")) {
+            }else if(name.equals("resetButton")) {
                 updateGui(true);
+            }else if(name.equals("setDifficulty")){
+                String difficulty = difficultycomboBox.getSelectedItem().toString();
+                if(difficulty.equals("Easy")){
+                    p.changeDifficulty(Player.Difficulty.EASY);
+                    System.out.println("Difficulty changed to easy");
+                }else if(difficulty.equals("Medium")){
+                    p.changeDifficulty(Player.Difficulty.MEDIUM);
+                    System.out.println("Difficulty changed to medium");
+                }else if(difficulty.equals("Hard")){
+                    p.changeDifficulty(Player.Difficulty.HARD);
+                    System.out.println("Difficulty changed to hard");
+                }
             }
         }
         if(!isWon)
