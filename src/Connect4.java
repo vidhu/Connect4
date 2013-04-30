@@ -259,10 +259,14 @@ public class Connect4 {
             if (name.substring(0, 3).equals("box")) {
                 //get the coordinates
                 int column = Integer.parseInt(name.split("[|]+")[2]);
-
-                //Change the board
-                makeMove(1, column);
-                break;
+                int row = Integer.parseInt(name.split("[|]+")[1]);
+                
+                if(board[row][column] == 0){
+                    //Change the board
+                    makeMove(1, column); 
+                    break;
+                }
+                
             }
             if(name.equals("resetButton")) {
                 updateGui(true);
