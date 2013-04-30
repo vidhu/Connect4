@@ -7,10 +7,12 @@ import javax.swing.*;
 
 public class Connect4 {
     //Boord used in this game
-    //The grids in the board
+    //The grids & labels in the board
     private static JButton[][] squares = new JButton[8][8];
+    private static JButton resetButton = new JButton("Reset");
     private static JLabel winnerlbl = new JLabel();
     private static JLabel turnlbl = new JLabel();
+    private static JLabel gameName = new JLabel("Connect 4");
     private static int[][] board = new int[8][8];            //game board [row][column]
     
     //GridColors
@@ -23,7 +25,7 @@ public class Connect4 {
     //marks if the game is in progress or a player has won
     private static boolean isWon = false;
     private static int[][] winningCells = new int[4][2];
-    private static final int AMIMATION_TIME = 200; //block drop animation in milliseconds
+    private static final int AMIMATION_TIME = 100; //block drop animation in milliseconds
     
     public static void main(String[] args) throws InterruptedException {
         Player p = new Player();                   // bot
@@ -117,7 +119,7 @@ public class Connect4 {
         
         //Create Gui Frame
         JFrame frame = new JFrame("Connect 4");
-        frame.setSize(537, 675);
+        frame.setSize(537, 695);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setBackground(new Color(255, 240, 180));
         
@@ -140,7 +142,7 @@ public class Connect4 {
         JBox body = JBox.vbox(
                               JBox.hbox(
                                         JBox.hglue(),
-                                        JBox.hbox(new JLabel("Connect 4")),
+                                        JBox.hbox(gameName),
                                         JBox.hglue()),
                               JBox.vglue(),
                               JBox.hbox(
@@ -175,39 +177,61 @@ public class Connect4 {
                                         squares[7][0], squares[7][1], squares[7][2], squares[7][3],
                                         squares[7][4], squares[7][5], squares[7][6], squares[7][7]
                                        ),
-                              JBox.hbox(winnerlbl),
-                              JBox.hbox(turnlbl),
+                              JBox.vglue(),
+                              JBox.hbox(
+                                        resetButton, 
+                                        JBox.hglue(),
+                                        turnlbl, 
+                                        winnerlbl
+                                       ),
+
                               JBox.vglue()
                              );
-        body.setFont(new Font("Connect 4", Font.BOLD, 48));
-        
+        gameName.setFont(new Font("Connect 4", Font.BOLD, 48));
+        turnlbl.setFont(new Font("", Font.ITALIC, 30));
+        winnerlbl.setFont(new Font("", Font.ITALIC, 30));
         frame.add(body);
         frame.setVisible(true);
         
     }
     
     //call this whenever you update the board to redraw the grids
-    public static void updateGui(){
-        for(int i=0; i<squares.length; i++){
-            for(int j=0; j<squares.length; j++){
-                if(board[i][j] == 1){
-                    squares[i][j].setIcon(redButton);
-                }else if(board[i][j] == 10){
-                    squares[i][j].setIcon(blueButton);
-                }else{
+    public static void updateGui(boolean reset){
+        if(reset) {
+            for(int i=0; i<board.length; i++){
+                for(int j=0; j<board[i].length; j++){
+                    board[i][j] = 0;
                     squares[i][j].setIcon(blankButton);
+                    squares[i][j].setEnabled(true);
+                    
                 }
-                JBox.setSize(squares[i][j], 65, 65);
-                squares[i][j].setIconTextGap(0);
-            }  
-        }
+            }
+            winnerlbl.setText("");
+            isWon = false;
+        } else {
+            for(int i=0; i<squares.length; i++){
+                for(int j=0; j<squares.length; j++){
+                    if(board[i][j] == 1){
+                        squares[i][j].setIcon(redButton);
+                    }else if(board[i][j] == 10){
+                        squares[i][j].setIcon(blueButton);
+                    }else{
+                        squares[i][j].setIcon(blankButton);
+                    }
+                    JBox.setSize(squares[i][j], 65, 65);
+                    squares[i][j].setIconTextGap(0);
+                }  
+            }
+        } 
     }
     
     //wait for user input
     public static void userTurn(){
-        turnlbl.setText("User Turn...");
+        if(!isWon)
+            turnlbl.setText("User Turn...");
         //Event listeners
         JEventQueue events = new JEventQueue();
+        events.listenTo(resetButton,"resetButton");
         for(int i=0; i<squares.length; i++){
             for(int j=0; j<squares.length; j++){
                 events.listenTo(squares[i][j], "box|"+i+"|"+j);
@@ -225,8 +249,12 @@ public class Connect4 {
                 makeMove(1, column);
                 break;
             }
+            if(name.equals("resetButton")) {
+                updateGui(true);
+            }
         }
-        turnlbl.setText("Bot Turn...");
+        if(!isWon)
+            turnlbl.setText("Bot Turn...");
     }
     
     public static void makeMove(int Player, int column){                    // Vaeman
@@ -259,13 +287,13 @@ public class Connect4 {
         //Detect a win
         if (isWin(row, column)) {
             //Sets the win message
-            turnlbl.setText("");
+            turnlbl.setText(" ");
             if(player == 1){
                 highlightWinningCells(1);
-                winnerlbl.setText("You have won!"); 
+                winnerlbl.setText("You have won! "); 
             }else if(player == 10){
                 highlightWinningCells(10);
-                winnerlbl.setText("Bot has won!");
+                winnerlbl.setText("Bot has won! ");
             }
             
             //Disables all buttons
@@ -275,16 +303,23 @@ public class Connect4 {
                 }
             }
             
-            //Sets isWon flag to true to halt game
+            // Sets isWon flag to true to halt game
             isWon = true;
-            
-            //Debuging thing
+            if(isWon) {
+                try {                                         // this will pause execution for 100 milliseconds (0.1 sec)
+                    Thread.sleep(2500);                         
+                } catch(InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                }
+                updateGui(true);
+            }
+            // Debuging thing
             System.out.println("Win detected!");
             return;
         }  
         
         //Updates the gui to relfect changes in the board
-        updateGui();
+        updateGui(false);
     }
     
     public static void addWinningCell(int row, int column){
@@ -304,6 +339,8 @@ public class Connect4 {
             }
         }
     }
+    
+    
     
     public static void highlightWinningCells(int player){
         if(player == 1){
