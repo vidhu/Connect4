@@ -1,7 +1,6 @@
 import java.awt.*;
+import java.io.*;
 import java.util.EventObject;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.*;
 
 
@@ -14,7 +13,10 @@ public class Connect4 {
     private static JLabel turnlbl = new JLabel();
     private static JLabel gameName = new JLabel("Connect 4");
     private static int[][] board = new int[8][8];            //game board [row][column]
-    
+    private static JLabel scoreTitle = new JLabel("Game wins");
+    private static JLabel botWins = new JLabel("Bot: ");
+    private static JLabel playerWins = new JLabel("Player: ");
+        
     //GridColors
     private static ImageIcon blankButton = new ImageIcon("blank.png");
     private static ImageIcon blueButton = new ImageIcon("blue.png");
@@ -116,6 +118,9 @@ public class Connect4 {
         ImageIcon blankButton = new ImageIcon("src/blank.png");
         ImageIcon blueButton = new ImageIcon("src/blue.png");
         ImageIcon redButton = new ImageIcon("src/red.png");
+
+        //Updates the score board
+        updateGuiScore();
         
         //Create Gui Frame
         JFrame frame = new JFrame("Connect 4");
@@ -181,6 +186,12 @@ public class Connect4 {
                               JBox.hbox(
                                         resetButton, 
                                         JBox.hglue(),
+                                        JBox.vbox(
+                                                    scoreTitle,
+                                                    botWins,
+                                                    playerWins
+                                                ),
+                                        JBox.hglue(),
                                         turnlbl, 
                                         winnerlbl
                                        ),
@@ -203,11 +214,12 @@ public class Connect4 {
                     board[i][j] = 0;
                     squares[i][j].setIcon(blankButton);
                     squares[i][j].setEnabled(true);
-                    
                 }
             }
             winnerlbl.setText("");
             isWon = false;
+            
+            
         } else {
             for(int i=0; i<squares.length; i++){
                 for(int j=0; j<squares.length; j++){
@@ -222,7 +234,10 @@ public class Connect4 {
                     squares[i][j].setIconTextGap(0);
                 }  
             }
-        } 
+        }
+        
+        //Updates the score board
+        updateGuiScore();
     }
     
     //wait for user input
@@ -241,10 +256,10 @@ public class Connect4 {
         while(true){
             EventObject event = events.waitEvent();
             String name = events.getName(event);
-            if (name.subSequence(0, 3).equals("box")) {
+            if (name.substring(0, 3).equals("box")) {
                 //get the coordinates
                 int column = Integer.parseInt(name.split("[|]+")[2]);
-                
+
                 //Change the board
                 makeMove(1, column);
                 break;
@@ -290,8 +305,10 @@ public class Connect4 {
             turnlbl.setText(" ");
             if(player == 1){
                 highlightWinningCells(1);
+                recordScore(1);
                 winnerlbl.setText("You have won! "); 
             }else if(player == 10){
+                recordScore(10);
                 highlightWinningCells(10);
                 winnerlbl.setText("Bot has won! ");
             }
@@ -340,8 +357,6 @@ public class Connect4 {
         }
     }
     
-    
-    
     public static void highlightWinningCells(int player){
         if(player == 1){
             for(int i=0; i<4; i++){
@@ -352,5 +367,58 @@ public class Connect4 {
                 squares[winningCells[i][0]][winningCells[i][1]].setIcon(blueButtonLight);
             }
         }
+    }
+    
+    //This method takes in a winner and modifies the score file
+    public static void recordScore(int player){
+        try {
+            String[] currentScore;
+
+            //Read current score
+            currentScore = getScore();
+
+            //modifiy Score
+            if(player == 1){
+                currentScore[0] = String.valueOf(Integer.parseInt(currentScore[0]) + 1);
+            }else if(player == 10){
+                currentScore[1] = String.valueOf(Integer.parseInt(currentScore[1]) + 1);
+            }
+            
+            //Write new score
+            PrintWriter writer = new PrintWriter("score.dat", "UTF-8");
+            writer.println(currentScore[0]+"|"+currentScore[1]);
+            writer.close();
+            
+        }catch (Exception ex2){
+            
+        }
+    }
+    
+    public static String[] getScore(){
+        String[] currentScore = new String[2];
+        
+        //Read current score
+        try{
+            BufferedReader br = new BufferedReader(new FileReader("score.dat"));
+            currentScore = br.readLine().toString().split("[|]+");
+        }catch(FileNotFoundException ex1){
+            //Incase file is missing write a new file
+            try{
+               PrintWriter writer = new PrintWriter("score.dat", "UTF-8");
+                writer.println("0|0");
+                writer.close(); 
+                return getScore();
+            }catch(Exception ex2){}
+        }catch(Exception ex3){
+            
+        }
+        
+        return currentScore;
+    }
+    
+    public static void updateGuiScore(){
+        String[] score = getScore(); //gets score from score.dat file
+        playerWins.setText("player: " + score[0]);
+        botWins.setText("bot: " + score[1]);
     }
 }
