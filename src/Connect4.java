@@ -133,6 +133,7 @@ public class Connect4 {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setBackground(new Color(255, 240, 180));
         
+        //Set difficulty default index
         difficultycomboBox.setSelectedIndex(2);
         
         for(int i=0; i<squares.length; i++){
