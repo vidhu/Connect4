@@ -184,16 +184,28 @@ public class Connect4 {
                                        ),
                               JBox.vglue(),
                               JBox.hbox(
-                                        resetButton, 
-                                        JBox.hglue(),
+                                        JBox.hspace(10),
                                         JBox.vbox(
+                                                    JBox.vglue(),
+                                                    resetButton,
+                                                    JBox.vglue()
+                                                ),
+                                        JBox.hspace(80),
+                                        JBox.vbox(
+                                                    JBox.vglue(),
                                                     scoreTitle,
                                                     botWins,
-                                                    playerWins
+                                                    playerWins,
+                                                    JBox.vglue()
                                                 ),
                                         JBox.hglue(),
-                                        turnlbl, 
-                                        winnerlbl
+                                        JBox.vbox(
+                                                    JBox.vglue(),
+                                                    turnlbl, 
+                                                    winnerlbl,
+                                                    JBox.vglue()
+                                                ),
+                                        JBox.hspace(10)
                                        ),
 
                               JBox.vglue()
